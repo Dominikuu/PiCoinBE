@@ -3,16 +3,40 @@
 coin計算: user mining 24hr期間 x 1 + 好友有上線的期間(minimum of friend activated_time ~ maximum of friend expired_time) x 0.25
 
 Tecnique stack
-Nodjs/Express, PostgreSQL,
+Nodjs/Express, PostgreSQL,Redis, Nginx
 
-API
-Member login
+### API
+取得用戶朋友的狀態
+- GET /{user_id}/friends
 
-Get Friend List
+取得用戶的狀態
+- GET /{user_id}/mining
 
-Activate mining
+開始挖礦
+- POST /{user_id}/mining
 
-Get user's mining status
+coins: number
+activated_time: number
+expired_time: number
 
 DB schema
 
+friends:
+user_id: string
+firend: string[]
+
+mining
+user_id: string
+expired_time: int
+activated_time: int
+
+### Setup procedure
+https://github.com/Dominikuu/PiCoinFE
+
+```
+#Build up container
+docker-compose up --build
+
+#Stop and remove container & volume
+#docker-compose down -v
+```
