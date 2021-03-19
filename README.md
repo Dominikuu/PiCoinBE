@@ -1,5 +1,7 @@
 # PiCoinBE
 
+Please refer to https://github.com/Dominikuu/PiCoinFE
+
 coin計算: user mining 24hr期間 x 1 + 好友有上線的期間(minimum of friend activated_time ~ maximum of friend expired_time) x 0.25
 
 Tecnique stack
@@ -31,7 +33,8 @@ expired_time: int
 activated_time: int
 
 ### Setup procedure
-https://github.com/Dominikuu/PiCoinFE
+1. clone the PiCoinBE project
+2. Setup by docker-compose
 
 ```
 #Build up container
