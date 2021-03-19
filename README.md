@@ -1,1 +1,7 @@
 # PiCoinBE
+
+
+
+API
+
+DB schema
