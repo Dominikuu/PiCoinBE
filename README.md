@@ -9,29 +9,50 @@ Tecnique stack
 Nodjs/Express, PostgreSQL,Redis, Nginx
 
 ### API
-取得用戶朋友的狀態
+Get friend id list
 - GET /{user_id}/friends
 
-取得用戶的狀態
+Get user's mining status (including coin, activate time and expired time)
 - GET /{user_id}/mining
 
-開始挖礦
+Start mining
 - POST /{user_id}/mining
 
 coins: number
 activated_time: number
 expired_time: number
 
-DB schema
+### DB schema
+- friend
+| Column    | Type   |
+|-----------|--------|
+| friend_id | serial |
+| user_a    | serial |
+| user_b    | serial |
 
-friends:
-user_id: string
-firend: string[]
+- mining
+| Column         | Type      |
+|----------------|-----------|
+| id*            | serial    |
+| activated_time | timestamp |
+| expired_time   | timestamp |
+| coins          | int       |
 
-mining
-user_id: string
-expired_time: int
-activated_time: int
+- login
+| Column | Type                  |
+|--------|-----------------------|
+| id*    | serial                |
+| hash   | varchar(100) NOT NULL |
+| email  | text UNIQUE NOT NULL  |
+
+- user
+| Column  | Type                 |
+|---------|----------------------|
+| id*     | SERIAL               |
+| name    | VARCHAR(100)         |
+| email   | TEXT UNIQUE NOT NULL |
+| entries | BIGING DEFAULT 0     |
+| joined  | TIMESTAMP NOT NULL   |
 
 ### Setup procedure
 1. clone the PiCoinBE project
