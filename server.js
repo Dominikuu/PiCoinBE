@@ -7,10 +7,9 @@ const morgan = require('morgan');
 
 const register = require('./controllers/register');
 const signin = require('./controllers/signin');
-const profile = require('./controllers/profile');
-const image = require('./controllers/image');
-const auth = require('./controllers/authorization');
-const tinyUrl = require('./controllers/tinyUrl')
+const mining = require('./controllers/mining');
+const friends = require('./controllers/friends')
+const auth = require('./controllers/authorization')
 
 //Database Setup
 const db = knex({
@@ -23,35 +22,32 @@ const port = process.env.PORT || 3000
 
 const whitelist = ['http://localhost:3000']
 const corsOptions = {
-  origin: function (origin, callback) {
-    console.log('origin=>>>>', origin)
-    callback(null, true)
-    // if (whitelist.indexOf(origin) !== -1) {
-    //   callback(null, true)
-    // } else {
-    //   callback(new Error('Not allowed by CORS'))
-    // }
-  }
+  origin: '*',
+
+  methods: [
+    'GET',
+    'POST',
+  ],
+
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-CSRFToken'
+  ],
 }
 
 app.use(morgan('combined'));
 app.use(cors(corsOptions))
+
 app.use(bodyParser.json());
-
-app.get('/', (req, res) => {
-  res.send('Hello World!!!')
-})
-
+// Authenication
 app.post('/signin', signin.signinAuthentication(db, bcrypt))
 app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt) })
-app.get('/profile/:id', auth.requireAuth, (req, res) => { profile.handleProfileGet(req, res, db) })
-app.post('/profile/:id', auth.requireAuth, (req, res) => { profile.handleProfileUpdate(req, res, db) })
-app.put('/image', auth.requireAuth, (req, res) => { image.handleImage(req, res, db) })
-app.post('/imageurl', auth.requireAuth, (req, res) => { image.handleApiCall(req, res) })
-app.get('/shortenurl/:url', async (req, res) => { tinyUrl.handleUrlRedirect(req, res, db) })
-// app.post('/shortenurl', auth.requireAuth, (req, res) => {tinyUrl.handleUrlShorten(req, res)})
-app.post('/shortenurl', async (req, res) => { tinyUrl.handleUrlShorten(req, res, db) })
-
+// Friend
+app.get('/:id/friends', auth.requireAuth, async (req, res) => { friends.handleListFriends(req, res, db) })
+// Mining
+app.post('/:id/mining', auth.requireAuth, async (req, res) => { mining.handleAcitvateMining(req, res, db) })
+app.get('/:id/mining', auth.requireAuth, async (req, res) => { mining.handleGetMiningStatus(req, res, db) })
 app.listen(port, () => {
   console.log('app is running on port 3000');
 })

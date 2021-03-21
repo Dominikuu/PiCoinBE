@@ -1,7 +1,7 @@
 const redisClient = require('./signin').redisClient;
 
 const requireAuth = (req, res, next) => {
-  const { authorization } = req.headers;
+  const authorization = req.headers.authorization.replace('jwt ', '');
   if (!authorization) {
     return res.status(401).send('Unauthorized');
   }

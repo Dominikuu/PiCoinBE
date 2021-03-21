@@ -13,11 +13,24 @@ services:
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: password
-      POSTGRES_URL: postgres://admin:password@localhost:5432/url-shortener
-      POSTGRES_DB: url-shortener
+      POSTGRES_URL: postgres://admin:password@localhost:5432/pi-coin
+      POSTGRES_DB: pi-coin
       POSTGRES_HOST: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  pgadmin:
+    container_name: pgadmin_container
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    ports:
+      - "5555:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+      PGADMIN_DEFAULT_PASSWORD: admin
 
   # Redis
   redis:
@@ -27,21 +40,19 @@ services:
       - "6379:6379"
 
   # Backend
-  url-shortener-api:
-    # env_file:
-    #   - ./.private/api-keys.env "Another way to insert env variables"
-    container_name: backend
+  pi-coin-api:
+    container_name: server
     build: ./
     volumes:
-      - ./:/usr/src/url-shortener-api
+      - ./:/usr/src/pi-coin-api
     command: npm start
-    working_dir: /usr/src/url-shortener-api
+    working_dir: /usr/src/pi-coin-api
     ports:
       - "3000:3000"
+      - "9229:9229"
     environment:
-      POSTGRES_URI: postgres://admin:password@postgres:5432/url-shortener
+      POSTGRES_URI: postgres://admin:password@postgres:5432/pi-coin
       REDIS_URI: redis://redis:6379
-    # Heads up! Docker has updated this feature and now you don't need to define the links property in order for things to work - https://docs.docker.com/compose/networking/
-    # links:
-    #   - postgres
-    #   - redis
+
+volumes:
+  postgres-data:
