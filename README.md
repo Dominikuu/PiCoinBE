@@ -55,6 +55,17 @@ Start mining
 | entries | BIGING DEFAULT 0     |
 | joined  | TIMESTAMP NOT NULL   |
 
+### Test account
+
+test1@test.com
+test2@test.com
+test3@test.com
+test4@test.com
+test5@test.com
+test6@test.com
+test7@test.com
+test8@test.com
+
 ### Setup procedure
 1. clone the PiCoinBE project
 2. Setup by docker-compose

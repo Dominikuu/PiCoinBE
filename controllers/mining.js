@@ -10,51 +10,75 @@ const friends = model({
 
 const DAYMILLISEC = 24 * 60 * 60 * 1000
 
-const calcBonusPeriod = ({ bonus, activated_time, expired_time }) => {
-  let bonus_start = 0
-  let bonus_end = 0
-
-  if (!bonus.length) {
-    return { bonus_start, bonus_end }
+const calcBonusPeriod = ({ activated_time, expired_time, existed_expired_time, friend_activated_time }) => {
+  const now = new Date().valueOf() > expired_time ? expired_time : new Date().valueOf();
+  const normal_period = now - activated_time
+  let bonus_period = 0
+  if (existed_expired_time && friend_activated_time) {
+    if (existed_expired_time < friend_activated_time) {
+      bonus_period = (now - friend_activated_time) + (existed_expired_time - activated_time)
+    } else {
+      bonus_period = now - activated_time
+    }
+  } else if (existed_expired_time) {
+    bonus_period = existed_expired_time - activated_time
+  } else if (friend_activated_time) {
+    bonus_period = now - friend_activated_time
   }
-  bonus_start = Math.min(...(bonus.map(({ activated_time }) => new Date(activated_time).valueOf())))
-  bonus_end = Math.max(...(bonus.map(({ expired_time }) => new Date(expired_time).valueOf())))
-  if (bonus_start < activated_time) {
-    bonus_start = activated_time
-  }
-  if (bonus_end > expired_time) {
-    bonus_end = expired_time > now ? now : expired_time
-  }
-  return { bonus_start, bonus_end }
+  return Math.floor(normal_period / 1000) + (Math.floor(bonus_period / 1000) * 0.25)
 }
 
 const handleAcitvateMining = async (req, res, db) => {
   const { id } = req.params
   const now = new Date().valueOf();
-  const [miningInfo] = await mining.find(['id', '=', id])
-  if (miningInfo.expired_time) {
+  const [{ expired_time, coins }] = await mining.find(['id', '=', id])
+  if (expired_time) {
     return res.status(401).json('INVALID_ACTIVATE_ACTION')
   }
-  const current_coins = miningInfo.coins;
+  const current_coins = coins;
+  const friendList = (await friends.find(['user_a', '=', id], 'user_b')).map(({ user_b }) => user_b)
+  const expired_time_list = (await mining.find(['id', 'IN', friendList])).filter(({ activated_time, expired_time }) => {
+    return activated_time && expired_time
+  }).map(({ expired_time }) => expired_time)
+
   const update_content = {
     activated_time: Date.now(),
     expired_time: new Date(now + (24 * 60 * 60 * 1000)).valueOf(),
-    points: current_coins
+    points: current_coins,
   }
   const update_content_timestamp = {
     activated_time: new Date(),
     expired_time: new Date(now + (24 * 60 * 60 * 1000)),
-    coins: current_coins
+    coins: current_coins,
+    existed_expired_time: null,
+    friend_activated_time: expired_time_list.length ? Math.max(...expired_time_list) : null
   }
 
   await mining.update(id, update_content_timestamp)
   setInterval(async () => {
+    const [activated_time, expired_time, existed_expired_time, friend_activated_time] = await mining.find(['id', '=', id])
     await mining.update(id, {
       activated_time: null,
       expired_time: null,
-      coins: calcCoins.bind(this)
+      coins: current_coins + calcBonusPeriod({
+        activated_time, expired_time, existed_expired_time,
+        friend_activated_time
+      }),
+      friend_activated_time: null,
+      existed_expired_time: null
     })
   }, DAYMILLISEC)
+
+  // Set Friends bonus activated_time
+  for (const friend_id of friendList) {
+    const friend_mining = await mining.find(['id', '=', friend_id])
+    if (!friend_mining.expired_time) {
+      continue
+    }
+    await mining.update(id, {
+      friend_activated_time: new Date(),
+    })
+  }
 
   return res.status(200).json(update_content)
 
@@ -62,11 +86,15 @@ const handleAcitvateMining = async (req, res, db) => {
 
 const handleGetMiningStatus = async (req, res, db) => {
   const { id } = req.params
-  const now = new Date().valueOf();
   const [miningInfo] = await mining.find(['id', '=', id])
+  // Normal
   const activated_time = new Date(miningInfo.activated_time).valueOf()
   const expired_time = new Date(miningInfo.expired_time).valueOf()
+  // Bonus
+  const existed_expired_time = miningInfo.existed_expired_time ? new Date(miningInfo.existed_expired_time).valueOf() : null
+  const friend_activated_time = miningInfo.friend_activated_time ? new Date(miningInfo.friend_activated_time).valueOf() : null
   const current_point = miningInfo.coins
+  // Ready for activation
   if (!expired_time) {
     return res.status(200).json({
       activated_time: null,
@@ -74,16 +102,13 @@ const handleGetMiningStatus = async (req, res, db) => {
       points: current_point
     })
   }
-  const friendList = (await friends.find(['user_a', '=', id], 'user_b')).map(({ user_b }) => user_b)
-  const bonus = (await mining.find(['id', 'IN', friendList])).filter(({ activated_time, expired_time }) => {
-    return activated_time && expired_time
+  // Mining
+  const points = current_point + calcBonusPeriod({
+    activated_time, expired_time, existed_expired_time,
+    friend_activated_time
   })
 
-  const { bonus_start, bonus_end } = calcBonusPeriod({ activated_time, expired_time, bonus })
-  const points = current_point + Math.floor((now - activated_time) / 1000) + (0.25 * Math.floor((bonus_end - bonus_start) / 1000))
-
   return res.status(200).json({
-    miningInfo,
     activated_time,
     expired_time,
     points
