@@ -24,28 +24,32 @@ expired_time: number
 
 ### DB schema
 - friend
+
 | Column    | Type   |
 |-----------|--------|
-| friend_id | serial |
-| user_a    | serial |
-| user_b    | serial |
+| friend_id | SERIAL |
+| user_a    | SERIAL |
+| user_b    | SERIAL |
 
 - mining
+
 | Column         | Type      |
 |----------------|-----------|
-| id*            | serial    |
-| activated_time | timestamp |
-| expired_time   | timestamp |
-| coins          | int       |
+| id*            | SERIAL    |
+| activated_time | TIMESTAMP |
+| expired_time   | TIMESTAMP |
+| coins          | INT       |
 
 - login
+
 | Column | Type                  |
 |--------|-----------------------|
-| id*    | serial                |
-| hash   | varchar(100) NOT NULL |
-| email  | text UNIQUE NOT NULL  |
+| id*    | SERIAL                |
+| hash   | VARCHAR(100) NOT NULL |
+| email  | TEXT UNIQUE NOT NULL  |
 
 - user
+
 | Column  | Type                 |
 |---------|----------------------|
 | id*     | SERIAL               |
