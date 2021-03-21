@@ -1,12 +1,13 @@
 # PiCoinBE
 
+  PiCoinBE is a dockerized app, containing of Nodjs/Express, PostgreSQL,Redis, Nginx.
+
 ### GUI
 Please refer to https://github.com/Dominikuu/PiCoinFE
 
 coin計算: user mining 24hr期間 x 1 + 好友有上線的期間(minimum of friend activated_time ~ maximum of friend expired_time) x 0.25
 
-Tecnique stack
-Nodjs/Express, PostgreSQL,Redis, Nginx
+
 
 ### API
 Get friend id list
@@ -17,10 +18,6 @@ Get user's mining status (including coin, activate time and expired time)
 
 Start mining
 - POST /{user_id}/mining
-
-coins: number
-activated_time: number
-expired_time: number
 
 ### DB schema
 - friend
