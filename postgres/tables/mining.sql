@@ -6,7 +6,7 @@ CREATE TABLE mining (
     expired_time TIMESTAMP,
     coins int,
     existed_expired_time TIMESTAMP,
-    friend_activated_time TIMESTAMP,
+    friend_activated_time TIMESTAMP
 );
 
 COMMIT;
