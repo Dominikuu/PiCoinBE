@@ -53,6 +53,7 @@ Start mining
 | friend_activated_time  | INT       |
 
 "existed_expired_time": maximum expired_time in all friends when activating
+
 "friend_activated_time": record latest activated time of friend during mining
 
 - login
@@ -76,12 +77,19 @@ Start mining
 ### Test account
 
 test1@test.com (Mining with bonus period 1)
+
 test2@test.com (Mining with bonus period 2)
+
 test3@test.com (Mining)
+
 test4@test.com (Mining)
+
 test5@test.com (Mining)
+
 test6@test.com (Ready for activate)
+
 test7@test.com (Ready for activate)
+
 test8@test.com (Ready for activate)
 
 ### Setup procedure
