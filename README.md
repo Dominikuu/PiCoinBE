@@ -11,9 +11,9 @@ coin計算: user mining 24hr期間 x 1 + bonus** x 0.25
 
 Rule of bonus period:
 1. Activate時，有朋友正在mining，且在mining時也有朋友Activate
-  1. W/O overlap
+  1. With overlap
    (existed_expired_time - activated_time) + (expired - friend_activated_time)
-  2. With overlap
+  2. W/O overlap
     expired_time - activated_time
 
 2. 只有Activate時，有朋友正在mining
