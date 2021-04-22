@@ -34,6 +34,8 @@ const handleSignin = (db, bcrypt, req, res) => {
       if (!data.length) {
         return Promise.reject('unable to get user');
       }
+
+
       const isValid = bcrypt.compareSync(password, data[0].hash);
       if (isValid) {
         return db.select('*').from('users')

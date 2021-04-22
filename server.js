@@ -1,10 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+
 const bcrypt = require('bcrypt');
 const cors = require('cors');
 const knex = require('knex');
 const morgan = require('morgan');
 
+// Router
 const register = require('./controllers/register');
 const signin = require('./controllers/signin');
 const mining = require('./controllers/mining');
@@ -20,9 +22,12 @@ const db = knex({
 const app = express();
 const port = process.env.PORT || 3000
 
+app.set('port', port);
+
 const whitelist = ['http://localhost:3000']
 const corsOptions = {
-  origin: '*',
+  credentials: true,
+  origin: 'http://localhost:4200',
 
   methods: [
     'GET',

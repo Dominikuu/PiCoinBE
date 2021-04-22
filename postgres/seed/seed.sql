@@ -12,6 +12,15 @@ insert into users (name, email, entries, joined) values ('test8', 'test8@test.co
 INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 1, 2);
 INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 2, 1);
 INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 1, 3);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 1, 4);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 4, 1);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 4, 2);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 2, 4);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 1, 7);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 7, 1);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 1, 6);
+INSERT INTO FRIENDS ( user_a, user_b ) VALUES ( 6, 1);
+
 
 INSERT INTO mining ( id, activated_time, expired_time, coins, existed_expired_time, friend_activated_time) VALUES ( 1, now() - INTERVAL '15 HOURS', now() + INTERVAL '9 HOURS',89 , now() + INTERVAL '5 HOURS' ,now() - INTERVAL '10 HOURS');
 INSERT INTO mining ( id, activated_time, expired_time, coins, existed_expired_time, friend_activated_time) VALUES ( 2, now() - INTERVAL '10 HOURS', now() + INTERVAL '14 HOURS',56,  now() + INTERVAL '9 HOURS' ,null);
