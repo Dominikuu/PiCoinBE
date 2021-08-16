@@ -1,3 +1,6 @@
+const broadcast = require('./broadcast')
+const action = require('./action')
+
 const model = require('../model/model')
 const mining = model({
   name: 'mining',
@@ -28,7 +31,7 @@ const calcBonusPeriod = ({ activated_time, expired_time, existed_expired_time, f
   return Math.floor(normal_period / 1000) + (Math.floor(bonus_period / 1000) * 0.25)
 }
 
-const handleAcitvateMining = async (req, res, db) => {
+const handleAcitvateMining = async (req, res, db, socketIo) => {
   const { id } = req.params
   const now = new Date().valueOf();
   const [{ expired_time, coins }] = await mining.find(['id', '=', id])
@@ -40,7 +43,6 @@ const handleAcitvateMining = async (req, res, db) => {
   const expired_time_list = (await mining.find(['id', 'IN', friendList])).filter(({ activated_time, expired_time }) => {
     return activated_time && expired_time
   }).map(({ expired_time }) => expired_time)
-
   const update_content = {
     activated_time: Date.now(),
     expired_time: new Date(now + (24 * 60 * 60 * 1000)).valueOf(),
@@ -51,10 +53,11 @@ const handleAcitvateMining = async (req, res, db) => {
     expired_time: new Date(now + (24 * 60 * 60 * 1000)),
     coins: current_coins,
     existed_expired_time: null,
-    friend_activated_time: expired_time_list.length ? Math.max(...expired_time_list) : null
+    friend_activated_time: expired_time_list.length ? new Date(Math.max(...expired_time_list)) : null
   }
-
   await mining.update(id, update_content_timestamp)
+
+  // Update DB after 24hr
   setInterval(async () => {
     const [activated_time, expired_time, existed_expired_time, friend_activated_time] = await mining.find(['id', '=', id])
     await mining.update(id, {
@@ -71,12 +74,16 @@ const handleAcitvateMining = async (req, res, db) => {
 
   // Set Friends bonus activated_time
   for (const friend_id of friendList) {
-    const friend_mining = await mining.find(['id', '=', friend_id])
-    if (!friend_mining.expired_time) {
+    const [activated_time, expired_time, existed_expired_time, friend_activated_time] = await mining.find(['id', '=', friend_id])
+    if (!expired_time) {
       continue
     }
     await mining.update(id, {
       friend_activated_time: new Date(),
+      coins: current_coins + calcBonusPeriod({
+        activated_time, expired_time, existed_expired_time,
+        friend_activated_time: new Date().valueOf()
+      }),
     })
   }
 
