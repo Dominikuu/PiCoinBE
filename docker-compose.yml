@@ -21,16 +21,16 @@ services:
     ports:
       - "5432:5432"
 
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4
-    depends_on:
-      - postgres
-    ports:
-      - "5555:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
-      PGADMIN_DEFAULT_PASSWORD: admin
+  # pgadmin:
+  #   container_name: pgadmin_container
+  #   image: dpage/pgadmin4
+  #   depends_on:
+  #     - postgres
+  #   ports:
+  #     - "5555:80"
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: pgadmin4@pgadmin.org
+  #     PGADMIN_DEFAULT_PASSWORD: admin
 
   # Redis
   redis:
@@ -50,6 +50,19 @@ services:
     ports:
       - "3000:3000"
       - "9229:9229"
+    environment:
+      POSTGRES_URI: postgres://admin:password@postgres:5432/pi-coin
+      REDIS_URI: redis://redis:6379
+      
+  socket:
+    container_name: socket
+    build: ./
+    volumes:
+      - ./:/usr/src/pi-coin-api
+    command: npm run socket
+    working_dir: /usr/src/pi-coin-api
+    ports:
+      - "8088:8088"
     environment:
       POSTGRES_URI: postgres://admin:password@postgres:5432/pi-coin
       REDIS_URI: redis://redis:6379
